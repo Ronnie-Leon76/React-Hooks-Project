@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useEffect, useReducer, useContext } from "react";
 
 import Card from "../UI/Card/Card";
 import classes from "./Login.module.css";
 import Button from "../UI/Button/Button";
+import AuthContext from "../store/auth-context";
 
 const emailReducer = (state, action) => {
   if (action.type === "USER_INPUT") {
@@ -37,27 +38,30 @@ const Login = (props) => {
     value: "",
     isValid: false,
   });
-  /**useEffect(() => {
+  const authCtx = useContext(AuthContext);
+
+  const { isValid: emailIsValid } = emailState;
+  const { isValid: passwordIsValid } = passwordState;
+
+  useEffect(() => {
     const identifier = setTimeout(() => {
       console.log("Checking for validity!");
-      setFormIsValid(
-        enteredEmail.includes("@") && enteredPassword.trim().length > 6
-      );
+      setFormIsValid(emailIsValid && passwordIsValid);
     }, 500);
     return () => {
       console.log("CLEANUP");
       clearTimeout(identifier);
     };
-  }, [enteredEmail, enteredPassword]); */
+  }, [emailIsValid, passwordIsValid]);
 
   const emailChangeHandler = (event) => {
     dispatchEmail({ type: "USER_INPUT", val: event.target.value });
-    setFormIsValid(event.target.value.includes("@") && passwordState.isValid);
+    //setFormIsValid(event.target.value.includes("@") && passwordState.isValid);
   };
 
   const passwordChangeHandler = (event) => {
     dispatchPassword({ type: "PASSWORD_INPUT", pass: event.target.value });
-    setFormIsValid(emailState.isValid && event.target.value.trim().length > 6);
+    //setFormIsValid(emailState.isValid && event.target.value.trim().length > 6);
   };
 
   const validateEmailHandler = () => {
@@ -70,10 +74,8 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(emailState.value, passwordState.value);
+    authCtx.onLogin(emailState.value, passwordState.value);
   };
-
- 
 
   return (
     <Card className={classes.login}>
